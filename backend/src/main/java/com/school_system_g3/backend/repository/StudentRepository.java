@@ -3,4 +3,8 @@ package com.school_system_g3.backend.repository;
 import com.school_system_g3.backend.model.Student;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface StudentRepository extends JpaRepository<Student, Long> {}
+import java.util.Optional;
+
+public interface StudentRepository extends JpaRepository<Student, Long> {
+    Optional<Student> findByEmail(String email);
+}

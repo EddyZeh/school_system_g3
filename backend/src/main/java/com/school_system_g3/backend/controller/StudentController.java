@@ -11,6 +11,7 @@ import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/students")
+@CrossOrigin(origins = "http://localhost:3000")
 public class StudentController {
     @Autowired
     private StudentRepository studentRepository;

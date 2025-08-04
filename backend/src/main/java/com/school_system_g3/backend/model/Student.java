@@ -18,8 +18,11 @@ public class Student {
     @Column(nullable = false, unique = true)
     private String email;
 
+    private String password;
+    
     private String program;
     private Integer level;
+    private Integer year; // Added to match database schema
 
     @ManyToOne
     @JoinColumn(name = "department_id")
@@ -37,6 +40,10 @@ public class Student {
     public void setProgram(String program) { this.program = program; }
     public Integer getLevel() { return level; }
     public void setLevel(Integer level) { this.level = level; }
+    public Integer getYear() { return year; }
+    public void setYear(Integer year) { this.year = year; }
     public Department getDepartment() { return department; }
     public void setDepartment(Department department) { this.department = department; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }  
 }

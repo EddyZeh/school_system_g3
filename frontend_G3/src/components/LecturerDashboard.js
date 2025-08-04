@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiService from '../services/api';
 import './Dashboard.css';
 
 const LecturerDashboard = ({ currentUser, onLogout }) => {
@@ -6,8 +7,11 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showGradingModal, setShowGradingModal] = useState(false);
+  const [lecturerData, setLecturerData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for lecturer dashboard
+  // Mock data for courses, TAs, and students (since these endpoints don't exist yet)
   const mockCourses = [
     {
       id: 1,
@@ -85,6 +89,48 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
     }
   ];
 
+  useEffect(() => {
+    const fetchLecturerData = async () => {
+      if (currentUser?.id) {
+        try {
+          setIsLoading(true);
+          const data = await apiService.getLecturerById(currentUser.id);
+          setLecturerData(data);
+        } catch (err) {
+          setError('Failed to load lecturer data');
+          console.error('Error fetching lecturer data:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchLecturerData();
+  }, [currentUser?.id]);
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading lecturer dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p>Error: {error}</p>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Use lecturerData if available, otherwise fall back to currentUser
+  const lecturer = lecturerData || currentUser;
+
   const renderOverview = () => (
     <div className="dashboard-overview">
       <div className="stats-grid">
@@ -105,7 +151,7 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
         </div>
         <div className="stat-card">
           <h3>Department</h3>
-          <p className="stat-number">Computer Engineering</p>
+          <p className="stat-number">{lecturer?.department || 'Computer Engineering'}</p>
           <p className="stat-label">Primary Department</p>
         </div>
       </div>
@@ -313,7 +359,7 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
       
       <div className="department-info">
         <div className="info-card">
-          <h4>Computer Engineering Department</h4>
+          <h4>{lecturer?.department || 'Computer Engineering'} Department</h4>
           <p><strong>Head of Department:</strong> Prof. David Wilson</p>
           <p><strong>Location:</strong> Engineering Building, Floor 3</p>
           <p><strong>Contact:</strong> cpen@university.edu</p>
@@ -375,7 +421,7 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
       <div className="profile-content">
         <div className="profile-picture">
           <div className="avatar">
-            {currentUser?.firstName?.charAt(0)}{currentUser?.lastName?.charAt(0)}
+            {lecturer?.firstName?.charAt(0)}{lecturer?.lastName?.charAt(0)}
           </div>
           <button className="btn btn-secondary">Change Photo</button>
         </div>
@@ -383,31 +429,23 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
         <div className="profile-details">
           <div className="form-group">
             <label>First Name</label>
-            <input type="text" defaultValue={currentUser?.firstName || ''} />
+            <input type="text" defaultValue={lecturer?.firstName || ''} />
           </div>
           <div className="form-group">
             <label>Last Name</label>
-            <input type="text" defaultValue={currentUser?.lastName || ''} />
+            <input type="text" defaultValue={lecturer?.lastName || ''} />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="email" defaultValue={currentUser?.email || ''} />
-          </div>
-          <div className="form-group">
-            <label>Phone</label>
-            <input type="tel" defaultValue={currentUser?.phone || ''} />
+            <input type="email" defaultValue={lecturer?.email || ''} />
           </div>
           <div className="form-group">
             <label>Lecturer ID</label>
-            <input type="text" defaultValue={currentUser?.lecturerId || ''} />
+            <input type="text" defaultValue={lecturer?.id || ''} />
           </div>
           <div className="form-group">
             <label>Department</label>
-            <input type="text" defaultValue={currentUser?.department || 'Computer Engineering'} />
-          </div>
-          <div className="form-group">
-            <label>Specialization</label>
-            <input type="text" defaultValue={currentUser?.specialization || ''} />
+            <input type="text" defaultValue={lecturer?.department || 'Computer Engineering'} />
           </div>
         </div>
 
@@ -462,7 +500,7 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
         </div>
         <div className="user-info">
           <span className="user-type-badge">Lecturer</span>
-          <span className="user-name">{currentUser?.firstName} {currentUser?.lastName}</span>
+          <span className="user-name">{lecturer?.firstName} {lecturer?.lastName}</span>
           <button className="btn btn-secondary" onClick={onLogout}>
             Logout
           </button>

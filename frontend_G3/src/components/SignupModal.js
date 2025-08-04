@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './SignupModal.css';
 
-const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
+const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin, isLoading = false }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -106,19 +106,21 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
   };
 
   const handleNext = () => {
-    if (validateStep(currentStep)) {
+    if (validateStep(currentStep) && !isLoading) {
       setCurrentStep(prev => prev + 1);
     }
   };
 
   const handlePrevious = () => {
-    setCurrentStep(prev => prev - 1);
+    if (!isLoading) {
+      setCurrentStep(prev => prev - 1);
+    }
   };
 
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (validateStep(currentStep)) {
+    if (validateStep(currentStep) && !isLoading) {
       const signupData = {
         userType,
         ...formData
@@ -147,6 +149,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
             value={formData.firstName}
             onChange={handleInputChange}
             placeholder="Enter your first name"
+            disabled={isLoading}
           />
           {errors.firstName && <span className="error-message">{errors.firstName}</span>}
         </div>
@@ -160,6 +163,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
             value={formData.lastName}
             onChange={handleInputChange}
             placeholder="Enter your last name"
+            disabled={isLoading}
           />
           {errors.lastName && <span className="error-message">{errors.lastName}</span>}
         </div>
@@ -175,6 +179,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
           value={formData.email}
           onChange={handleInputChange}
           placeholder="Enter your email"
+          disabled={isLoading}
         />
         {errors.email && <span className="error-message">{errors.email}</span>}
       </div>
@@ -193,6 +198,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
           value={formData.password}
           onChange={handleInputChange}
           placeholder="Create a password"
+          disabled={isLoading}
         />
         {errors.password && <span className="error-message">{errors.password}</span>}
       </div>
@@ -207,6 +213,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
           value={formData.confirmPassword}
           onChange={handleInputChange}
           placeholder="Confirm your password"
+          disabled={isLoading}
         />
         {errors.confirmPassword && <span className="error-message">{errors.confirmPassword}</span>}
       </div>
@@ -223,6 +230,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
           value={formData[config.fields[5]]}
           onChange={handleInputChange}
           placeholder={`Enter your ${userType} ID`}
+          disabled={isLoading}
         />
         {errors[config.fields[5]] && (
           <span className="error-message">{errors[config.fields[5]]}</span>
@@ -243,6 +251,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
           value={formData.phone}
           onChange={handleInputChange}
           placeholder="Enter your phone number"
+          disabled={isLoading}
         />
         {errors.phone && <span className="error-message">{errors.phone}</span>}
       </div>
@@ -257,6 +266,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
               className={`form-input ${errors.program ? 'error' : ''}`}
               value={formData.program}
               onChange={handleInputChange}
+              disabled={isLoading}
             >
               <option value="">Select your program</option>
               <optgroup label="Biomedical Engineering">
@@ -296,6 +306,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
               className={`form-input ${errors.year ? 'error' : ''}`}
               value={formData.year}
               onChange={handleInputChange}
+              disabled={isLoading}
             >
               <option value="">Select your year</option>
               <option value="1">1st Year</option>
@@ -316,6 +327,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
               className={`form-input ${errors.department ? 'error' : ''}`}
               value={formData.department}
               onChange={handleInputChange}
+              disabled={isLoading}
             >
               <option value="">Select department</option>
               <option value="biomedical-engineering">Biomedical Engineering</option>
@@ -337,6 +349,7 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
               value={formData.specialization}
               onChange={handleInputChange}
               placeholder="Enter your specialization"
+              disabled={isLoading}
             />
             {errors.specialization && <span className="error-message">{errors.specialization}</span>}
           </div>
@@ -381,18 +394,32 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin }) => {
             
             <div className="form-actions">
               {currentStep > 1 && (
-                <button type="button" className="btn btn-secondary" onClick={handlePrevious}>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={handlePrevious}
+                  disabled={isLoading}
+                >
                   Previous
                 </button>
               )}
               
               {currentStep < 3 ? (
-                <button type="button" className="btn btn-primary" onClick={handleNext}>
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={handleNext}
+                  disabled={isLoading}
+                >
                   Next
                 </button>
               ) : (
-                <button type="submit" className="btn btn-primary">
-                  Create Account
+                <button 
+                  type="submit" 
+                  className={`btn btn-primary ${isLoading ? 'loading' : ''}`}
+                  disabled={isLoading}
+                >
+                  {isLoading ? 'Creating Account...' : 'Create Account'}
                 </button>
               )}
             </div>

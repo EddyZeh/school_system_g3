@@ -1,11 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import apiService from '../services/api';
 import './Dashboard.css';
 
 const StudentDashboard = ({ currentUser, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedCourse, setSelectedCourse] = useState(null);
+  const [studentData, setStudentData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Mock data for student dashboard
+  // Mock data for courses, fees, and grades (since these endpoints don't exist yet)
   const mockCourses = [
     {
       id: 1,
@@ -61,6 +65,48 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
     { courseCode: 'CPEN 301', courseName: 'Database Systems', grade: 'B+', percentage: 78, assignments: 3, exams: 2 },
     { courseCode: 'CPEN 401', courseName: 'Computer Networks', grade: 'A-', percentage: 82, assignments: 5, exams: 1 }
   ];
+
+  useEffect(() => {
+    const fetchStudentData = async () => {
+      if (currentUser?.id) {
+        try {
+          setIsLoading(true);
+          const data = await apiService.getStudentById(currentUser.id);
+          setStudentData(data);
+        } catch (err) {
+          setError('Failed to load student data');
+          console.error('Error fetching student data:', err);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    fetchStudentData();
+  }, [currentUser?.id]);
+
+  if (isLoading) {
+    return (
+      <div className="loading-container">
+        <div className="loading-spinner"></div>
+        <p>Loading student dashboard...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-container">
+        <p>Error: {error}</p>
+        <button className="btn btn-primary" onClick={() => window.location.reload()}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
+  // Use studentData if available, otherwise fall back to currentUser
+  const student = studentData || currentUser;
 
   const renderOverview = () => (
     <div className="dashboard-overview">
@@ -278,7 +324,7 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
       <div className="profile-content">
         <div className="profile-picture">
           <div className="avatar">
-            {currentUser?.firstName?.charAt(0)}{currentUser?.lastName?.charAt(0)}
+            {student?.firstName?.charAt(0)}{student?.lastName?.charAt(0)}
           </div>
           <button className="btn btn-secondary">Change Photo</button>
         </div>
@@ -286,31 +332,31 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
         <div className="profile-details">
           <div className="form-group">
             <label>First Name</label>
-            <input type="text" defaultValue={currentUser?.firstName || ''} />
+            <input type="text" defaultValue={student?.firstName || ''} />
           </div>
           <div className="form-group">
             <label>Last Name</label>
-            <input type="text" defaultValue={currentUser?.lastName || ''} />
+            <input type="text" defaultValue={student?.lastName || ''} />
           </div>
           <div className="form-group">
             <label>Email</label>
-            <input type="email" defaultValue={currentUser?.email || ''} />
-          </div>
-          <div className="form-group">
-            <label>Phone</label>
-            <input type="tel" defaultValue={currentUser?.phone || ''} />
+            <input type="email" defaultValue={student?.email || ''} />
           </div>
           <div className="form-group">
             <label>Student ID</label>
-            <input type="text" defaultValue={currentUser?.studentId || ''} />
+            <input type="text" defaultValue={student?.id || ''} />
           </div>
           <div className="form-group">
             <label>Program</label>
-            <input type="text" defaultValue={currentUser?.program || ''} />
+            <input type="text" defaultValue={student?.program || ''} />
           </div>
           <div className="form-group">
-            <label>Year</label>
-            <input type="text" defaultValue={currentUser?.year || ''} />
+            <label>Year Level</label>
+            <input type="text" defaultValue={student?.level || ''} />
+          </div>
+          <div className="form-group">
+            <label>Department</label>
+            <input type="text" defaultValue={student?.department || ''} />
           </div>
         </div>
 
@@ -363,7 +409,7 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
         </div>
         <div className="user-info">
           <span className="user-type-badge">Student</span>
-          <span className="user-name">{currentUser?.firstName} {currentUser?.lastName}</span>
+          <span className="user-name">{student?.firstName} {student?.lastName}</span>
           <button className="btn btn-secondary" onClick={onLogout}>
             Logout
           </button>

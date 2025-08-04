@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import './LoginModal.css';
 
-const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
+const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = false }) => {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -78,7 +78,7 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     
-    if (validateForm()) {
+    if (validateForm() && !isLoading) {
       const loginData = {
         userType,
         email: formData.email,
@@ -119,6 +119,7 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
                 value={formData.email}
                 onChange={handleInputChange}
                 placeholder="Enter your email"
+                disabled={isLoading}
               />
               {errors.email && <span className="error-message">{errors.email}</span>}
             </div>
@@ -133,6 +134,7 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
                 value={formData.password}
                 onChange={handleInputChange}
                 placeholder="Enter your password"
+                disabled={isLoading}
               />
               {errors.password && <span className="error-message">{errors.password}</span>}
             </div>
@@ -149,6 +151,7 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
                 value={formData[config.fields[2]]}
                 onChange={handleInputChange}
                 placeholder={`Enter your ${userType} ID`}
+                disabled={isLoading}
               />
               {errors[config.fields[2]] && (
                 <span className="error-message">{errors[config.fields[2]]}</span>
@@ -157,13 +160,17 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup }) => {
             
             <div className="form-group">
               <label className="checkbox-label">
-                <input type="checkbox" className="checkbox-input" />
+                <input type="checkbox" className="checkbox-input" disabled={isLoading} />
                 <span className="checkbox-text">Remember me</span>
               </label>
             </div>
             
-            <button type="submit" className="btn btn-primary form-submit">
-              Sign In
+            <button 
+              type="submit" 
+              className={`btn btn-primary form-submit ${isLoading ? 'loading' : ''}`}
+              disabled={isLoading}
+            >
+              {isLoading ? 'Signing In...' : 'Sign In'}
             </button>
           </form>
           
