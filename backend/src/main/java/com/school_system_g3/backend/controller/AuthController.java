@@ -129,8 +129,11 @@ public class AuthController {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid lecturer ID"));
         }
 
-        // For now, we'll assume lecturers don't have passwords in the current model
-        // In a real application, you'd add password field to Lecturer model
+        // Check password
+        if (!password.equals(lecturer.getPassword())) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid password"));
+        }
+
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         response.put("message", "Login successful");
@@ -240,6 +243,7 @@ public class AuthController {
         String email = (String) signupRequest.get("email");
         String firstName = (String) signupRequest.get("firstName");
         String lastName = (String) signupRequest.get("lastName");
+        String password = (String) signupRequest.get("password");
         
         // Validate required fields
         if (email == null || email.trim().isEmpty()) {
@@ -251,6 +255,9 @@ public class AuthController {
         if (lastName == null || lastName.trim().isEmpty()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Last name is required"));
         }
+        if (password == null || password.trim().isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Password is required"));
+        }
         
         // Check if user already exists
         if (lecturerRepository.findByEmail(email).isPresent()) {
@@ -261,6 +268,7 @@ public class AuthController {
         lecturer.setFirst_name(firstName.trim());
         lecturer.setLast_name(lastName.trim());
         lecturer.setEmail(email.trim());
+        lecturer.setPassword(password);
         
         // Note: Department would need to be set based on department ID
         // For now, we'll leave it null

@@ -18,6 +18,8 @@ public class Lecturer {
     @Column(nullable = false, unique = true)
     private String email;
 
+    private String password; // Added to match database schema
+
     @ManyToOne
     @JoinColumn(name = "department_id")
     private Department department;
@@ -30,6 +32,8 @@ public class Lecturer {
     public void setLast_name(String last_name) { this.last_name = last_name; }
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
     public Department getDepartment() { return department; }
     public void setDepartment(Department department) { this.department = department; }
 }
