@@ -73,7 +73,7 @@
 .form-title {
   font-size: 24px;
   font-weight: 600;
-  color: #111827;
+  color: #2d1b69;
   margin-bottom: 8px;
   text-align: center;
 }
@@ -102,7 +102,7 @@
 }
 
 .form-footer a {
-  color: #667eea;
+  color: #2d1b69;
   text-decoration: none;
   font-weight: 500;
 }
@@ -130,13 +130,13 @@
 }
 
 .user-type-option:hover {
-  border-color: #667eea;
-  background: #f8fafc;
+  border-color: #2d1b69;
+  background: #f8f7ff;
 }
 
 .user-type-option.selected {
-  border-color: #667eea;
-  background: #667eea;
+  border-color: #2d1b69;
+  background: #2d1b69;
   color: white;
 }
 

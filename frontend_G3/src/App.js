@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Dashboard from './components/Dashboard';
+import StudentDashboard from './components/StudentDashboard';
+import LecturerDashboard from './components/LecturerDashboard';
+import TADashboard from './components/TADashboard';
 import LoginModal from './components/LoginModal';
 import SignupModal from './components/SignupModal';
 import './App.css';
@@ -139,20 +142,54 @@ function App() {
           <Route 
             path="/" 
             element={
-              <Dashboard 
-                onLoginClick={(type) => {
-                  setUserType(type);
-                  setShowLoginModal(true);
-                }}
-                onSignupClick={(type) => {
-                  setUserType(type);
-                  setShowSignupModal(true);
-                }}
-                isAuthenticated={isAuthenticated}
-                onLogout={handleLogout}
-                userType={userType}
-                currentUser={currentUser}
-              />
+              isAuthenticated ? (
+                userType === 'student' ? (
+                  <StudentDashboard 
+                    currentUser={currentUser}
+                    onLogout={handleLogout}
+                  />
+                ) : userType === 'lecturer' ? (
+                  <LecturerDashboard 
+                    currentUser={currentUser}
+                    onLogout={handleLogout}
+                  />
+                ) : userType === 'ta' ? (
+                  <TADashboard 
+                    currentUser={currentUser}
+                    onLogout={handleLogout}
+                  />
+                ) : (
+                  <Dashboard 
+                    onLoginClick={(type) => {
+                      setUserType(type);
+                      setShowLoginModal(true);
+                    }}
+                    onSignupClick={(type) => {
+                      setUserType(type);
+                      setShowSignupModal(true);
+                    }}
+                    isAuthenticated={isAuthenticated}
+                    onLogout={handleLogout}
+                    userType={userType}
+                    currentUser={currentUser}
+                  />
+                )
+              ) : (
+                <Dashboard 
+                  onLoginClick={(type) => {
+                    setUserType(type);
+                    setShowLoginModal(true);
+                  }}
+                  onSignupClick={(type) => {
+                    setUserType(type);
+                    setShowSignupModal(true);
+                  }}
+                  isAuthenticated={isAuthenticated}
+                  onLogout={handleLogout}
+                  userType={userType}
+                  currentUser={currentUser}
+                />
+              )
             } 
           />
           <Route path="/dashboard" element={<Navigate to="/" replace />} />
