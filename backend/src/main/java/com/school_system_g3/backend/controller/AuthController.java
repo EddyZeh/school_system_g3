@@ -28,7 +28,6 @@ public class AuthController {
         String userType = loginRequest.get("userType");
         String email = loginRequest.get("email");
         String password = loginRequest.get("password");
-        String id = loginRequest.get("id");
 
         if (email == null || password == null || userType == null) {
             return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
@@ -37,11 +36,11 @@ public class AuthController {
         try {
             switch (userType.toLowerCase()) {
                 case "student":
-                    return handleStudentLogin(email, password, id);
+                    return handleStudentLogin(email, password);
                 case "lecturer":
-                    return handleLecturerLogin(email, password, id);
+                    return handleLecturerLogin(email, password);
                 case "ta":
-                    return handleTALogin(email, password, id);
+                    return handleTALogin(email, password);
                 default:
                     return ResponseEntity.badRequest().body(Map.of("error", "Invalid user type"));
             }
@@ -79,21 +78,15 @@ public class AuthController {
         }
     }
 
-    private ResponseEntity<?> handleStudentLogin(String email, String password, String id) {
+    private ResponseEntity<?> handleStudentLogin(String email, String password) {
         Optional<Student> studentOpt = studentRepository.findByEmail(email);
-        
+
         if (studentOpt.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not found"));
         }
 
         Student student = studentOpt.get();
-        
-        // Check if student ID matches (assuming student_id is the ID)
-        if (!student.getStudent_id().toString().equals(id)) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid student ID"));
-        }
 
-        // Check password (in production, this should be hashed)
         if (!password.equals(student.getPassword())) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid password"));
         }
@@ -108,28 +101,21 @@ public class AuthController {
             "email", student.getEmail(),
             "userType", "student",
             "program", student.getProgram(),
-            "level", student.getLevel(),
-            "department", student.getDepartment() != null ? student.getDepartment().getDepartment_name() : null
+            "level", student.getYear()
         ));
 
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<?> handleLecturerLogin(String email, String password, String id) {
+    private ResponseEntity<?> handleLecturerLogin(String email, String password) {
         Optional<Lecturer> lecturerOpt = lecturerRepository.findByEmail(email);
-        
+
         if (lecturerOpt.isEmpty()) {
             return ResponseEntity.status(401).body(Map.of("error", "User not found"));
         }
 
         Lecturer lecturer = lecturerOpt.get();
-        
-        // Check if lecturer ID matches
-        if (!lecturer.getLecturer_id().toString().equals(id)) {
-            return ResponseEntity.status(401).body(Map.of("error", "Invalid lecturer ID"));
-        }
 
-        // Check password
         if (!password.equals(lecturer.getPassword())) {
             return ResponseEntity.status(401).body(Map.of("error", "Invalid password"));
         }
@@ -149,10 +135,9 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    private ResponseEntity<?> handleTALogin(String email, String password, String id) {
-        // For now, we'll treat TAs as lecturers since there's no TA model
-        // In a real application, you'd create a separate TA model
-        return handleLecturerLogin(email, password, id);
+    private ResponseEntity<?> handleTALogin(String email, String password) {
+        // For now, treat TA as lecturer
+        return handleLecturerLogin(email, password);
     }
 
     private ResponseEntity<?> handleStudentSignup(Map<String, Object> signupRequest) {
@@ -161,6 +146,21 @@ public class AuthController {
         String lastName = (String) signupRequest.get("lastName");
         String password = (String) signupRequest.get("password");
         String program = (String) signupRequest.get("program");
+        
+        // Extract and validate student ID
+        Object idObj = signupRequest.get("id");
+        if (idObj == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Student ID is required"));
+        }
+        Long studentId;
+        try {
+            studentId = Long.parseLong(idObj.toString());
+        } catch (NumberFormatException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Invalid student ID format"));
+        }
+        if (studentId < 1000000) { // Example: require more than 7 digits
+            return ResponseEntity.badRequest().body(Map.of("error", "Student ID must be more than 7 digits"));
+        }
         
         // Validate required fields
         if (email == null || email.trim().isEmpty()) {
@@ -183,8 +183,9 @@ public class AuthController {
         if (studentRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "User with this email already exists"));
         }
-
+        
         Student student = new Student();
+        student.setStudent_id(studentId); // <-- Set the provided ID
         student.setFirst_name(firstName.trim());
         student.setLast_name(lastName.trim());
         student.setEmail(email.trim());

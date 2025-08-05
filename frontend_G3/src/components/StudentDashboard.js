@@ -5,7 +5,6 @@ import './Dashboard.css';
 const StudentDashboard = ({ currentUser, onLogout }) => {
   const [activeTab, setActiveTab] = useState('overview');
   const [selectedCourse, setSelectedCourse] = useState(null);
-  const [studentData, setStudentData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -67,23 +66,12 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
   ];
 
   useEffect(() => {
-    const fetchStudentData = async () => {
-      if (currentUser?.id) {
-        try {
-          setIsLoading(true);
-          const data = await apiService.getStudentById(currentUser.id);
-          setStudentData(data);
-        } catch (err) {
-          setError('Failed to load student data');
-          console.error('Error fetching student data:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchStudentData();
-  }, [currentUser?.id]);
+    // Debug: Log current user data
+    console.log('Current user data:', currentUser);
+    
+    // Set loading to false immediately since we have the data from login/signup
+    setIsLoading(false);
+  }, [currentUser]);
 
   if (isLoading) {
     return (
@@ -105,8 +93,8 @@ const StudentDashboard = ({ currentUser, onLogout }) => {
     );
   }
 
-  // Use studentData if available, otherwise fall back to currentUser
-  const student = studentData || currentUser;
+  // Use currentUser directly since it has all the data from login/signup
+  const student = currentUser;
 
   const renderOverview = () => (
     <div className="dashboard-overview">

@@ -121,9 +121,16 @@ const SignupModal = ({ userType, onClose, onSignup, onSwitchToLogin, isLoading =
     e.preventDefault();
     
     if (validateStep(currentStep) && !isLoading) {
+      // Determine the correct ID field based on userType
+      let id = '';
+      if (userType === 'student') id = formData.studentId;
+      else if (userType === 'lecturer') id = formData.lecturerId;
+      else if (userType === 'ta') id = formData.taId;
+
       const signupData = {
         userType,
-        ...formData
+        ...formData,
+        id // Add the correct id field for backend
       };
       
       onSignup(signupData);

@@ -4,10 +4,7 @@ import './LoginModal.css';
 const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = false }) => {
   const [formData, setFormData] = useState({
     email: '',
-    password: '',
-    studentId: '',
-    lecturerId: '',
-    taId: ''
+    password: ''
   });
   const [errors, setErrors] = useState({});
 
@@ -16,19 +13,19 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = 
       title: 'Student Login',
       subtitle: 'Access your courses, grades, and payments',
       icon: '🎓',
-      fields: ['email', 'password', 'studentId']
+      fields: ['email', 'password']
     },
     lecturer: {
       title: 'Lecturer Login',
       subtitle: 'Manage your courses and student progress',
       icon: '👨‍🏫',
-      fields: ['email', 'password', 'lecturerId']
+      fields: ['email', 'password']
     },
     ta: {
       title: 'Teaching Assistant Login',
       subtitle: 'Support courses and assist students',
       icon: '👩‍💼',
-      fields: ['email', 'password', 'taId']
+      fields: ['email', 'password']
     }
   };
 
@@ -65,12 +62,6 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = 
       newErrors.password = 'Password must be at least 6 characters';
     }
     
-    // Validate ID field based on user type
-    const idField = config.fields[2]; // studentId, lecturerId, or taId
-    if (!formData[idField]) {
-      newErrors[idField] = `${userType.charAt(0).toUpperCase() + userType.slice(1)} ID is required`;
-    }
-    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -82,8 +73,7 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = 
       const loginData = {
         userType,
         email: formData.email,
-        password: formData.password,
-        id: formData[config.fields[2]]
+        password: formData.password
       };
       
       onLogin(loginData);
@@ -137,25 +127,6 @@ const LoginModal = ({ userType, onClose, onLogin, onSwitchToSignup, isLoading = 
                 disabled={isLoading}
               />
               {errors.password && <span className="error-message">{errors.password}</span>}
-            </div>
-            
-            <div className="form-group">
-              <label className="form-label" htmlFor={config.fields[2]}>
-                {userType.charAt(0).toUpperCase() + userType.slice(1)} ID
-              </label>
-              <input
-                type="text"
-                id={config.fields[2]}
-                name={config.fields[2]}
-                className={`form-input ${errors[config.fields[2]] ? 'error' : ''}`}
-                value={formData[config.fields[2]]}
-                onChange={handleInputChange}
-                placeholder={`Enter your ${userType} ID`}
-                disabled={isLoading}
-              />
-              {errors[config.fields[2]] && (
-                <span className="error-message">{errors[config.fields[2]]}</span>
-              )}
             </div>
             
             <div className="form-group">

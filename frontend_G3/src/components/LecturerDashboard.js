@@ -7,7 +7,6 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [showGradingModal, setShowGradingModal] = useState(false);
-  const [lecturerData, setLecturerData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -90,23 +89,12 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
   ];
 
   useEffect(() => {
-    const fetchLecturerData = async () => {
-      if (currentUser?.id) {
-        try {
-          setIsLoading(true);
-          const data = await apiService.getLecturerById(currentUser.id);
-          setLecturerData(data);
-        } catch (err) {
-          setError('Failed to load lecturer data');
-          console.error('Error fetching lecturer data:', err);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
-
-    fetchLecturerData();
-  }, [currentUser?.id]);
+    // Debug: Log current user data
+    console.log('Current user data:', currentUser);
+    
+    // Set loading to false immediately since we have the data from login/signup
+    setIsLoading(false);
+  }, [currentUser]);
 
   if (isLoading) {
     return (
@@ -128,8 +116,8 @@ const LecturerDashboard = ({ currentUser, onLogout }) => {
     );
   }
 
-  // Use lecturerData if available, otherwise fall back to currentUser
-  const lecturer = lecturerData || currentUser;
+  // Use currentUser directly since it has all the data from login/signup
+  const lecturer = currentUser;
 
   const renderOverview = () => (
     <div className="dashboard-overview">
